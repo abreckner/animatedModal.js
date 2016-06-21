@@ -34,18 +34,14 @@
             beforeClose: function() {}, 
             afterClose: function() {}
  
-            
-
         }, options);
         
         var closeBt = $('.close-'+settings.modalTarget);
 
-        //console.log(closeBt)
-
         var href = $(modal).attr('href'),
             id = $('body').find('#'+settings.modalTarget),
             idConc = '#'+id.attr('id');
-            //console.log(idConc);
+
             // Default Classes
             id.addClass('animated');
             id.addClass(settings.modalTarget+'-off');
@@ -61,7 +57,10 @@
             'overflow-y':settings.overflow,
             'z-index':settings.zIndexOut,
             'opacity':settings.opacityOut,
-            '-webkit-animation-duration':settings.animationDuration
+            '-webkit-animation-duration':settings.animationDuration,
+            '-moz-animation-duration':settings.animationDuration,
+            '-ms-animation-duration':settings.animationDuration,
+            'animation-duration':settings.animationDuration
         };
         //Apply stles
         id.css(initStyles);
@@ -69,29 +68,32 @@
         modal.click(function(event) {       
             event.preventDefault();
             $('body, html').css({'overflow':'hidden'});
-            if (href == idConc) {
-                if (id.hasClass(settings.modalTarget+'-off')) {
-                    id.removeClass(settings.animatedOut);
-                    id.removeClass(settings.modalTarget+'-off');
-                    id.addClass(settings.modalTarget+'-on');
-                } 
 
-                 if (id.hasClass(settings.modalTarget+'-on')) {
-                    settings.beforeOpen();
-                    id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
-                    id.addClass(settings.animatedIn);  
-                    id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterOpen);
-                };  
+            settings.beforeOpen(event);
+
+            if (id.hasClass(settings.modalTarget+'-off')) {
+                id.removeClass(settings.animatedOut);
+                id.removeClass(settings.modalTarget+'-off');
+                id.addClass(settings.modalTarget+'-on');
             } 
+
+             if (id.hasClass(settings.modalTarget+'-on')) {
+                id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
+                id.addClass(settings.animatedIn);  
+                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                    afterOpen(event);
+                });
+            };  
         });
 
 
 
         closeBt.click(function(event) {
             event.preventDefault();
-            $('body, html').css({'overflow':'auto'});
+            $('body, html').css({'overflow':'initial'});
 
-            settings.beforeClose(); //beforeClose
+            settings.beforeClose(event); //beforeClose
+
             if (id.hasClass(settings.modalTarget+'-on')) {
                 id.removeClass(settings.modalTarget+'-on');
                 id.addClass(settings.modalTarget+'-off');
@@ -100,18 +102,20 @@
             if (id.hasClass(settings.modalTarget+'-off')) {
                 id.removeClass(settings.animatedIn);
                 id.addClass(settings.animatedOut);
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', afterClose);
+                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                    afterClose(event)
+                });
             };
 
         });
 
-        function afterClose () {       
+        function afterClose (event) {       
             id.css({'z-index':settings.zIndexOut});
-            settings.afterClose(); //afterClose
+            settings.afterClose(event); //afterClose
         }
 
-        function afterOpen () {       
-            settings.afterOpen(); //afterOpen
+        function afterOpen (event) {       
+            settings.afterOpen(event); //afterOpen
         }
 
     }; // End animatedModal.js
