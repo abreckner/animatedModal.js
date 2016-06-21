@@ -80,7 +80,7 @@
              if (id.hasClass(settings.modalTarget+'-on')) {
                 id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
                 id.addClass(settings.animatedIn);  
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(event){
                     afterOpen(event);
                 });
             };  
@@ -102,8 +102,8 @@
             if (id.hasClass(settings.modalTarget+'-off')) {
                 id.removeClass(settings.animatedIn);
                 id.addClass(settings.animatedOut);
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                    afterClose(event)
+                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(event){
+                    afterClose(event);
                 });
             };
 
