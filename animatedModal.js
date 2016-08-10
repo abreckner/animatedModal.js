@@ -9,6 +9,7 @@
 (function ($) {
  
     $.fn.animatedModal = function(options) {
+        var me = this;
         var modal = $(this);
         
         //Defaults
@@ -29,12 +30,50 @@
             animationDuration:'.6s', 
             overflow:'auto', 
             // Callbacks
-            beforeOpen: function() {},           
+            beforeOpen: function(event, callback) {
+                callback();
+            },           
             afterOpen: function() {}, 
             beforeClose: function() {}, 
             afterClose: function() {}
  
         }, options);
+
+        me.openModal = function(){
+            settings.beforeOpen(event, function(){
+                $('body, html').css({'overflow':'hidden'});
+                if (id.hasClass(settings.modalTarget+'-off')) {
+                    id.removeClass(settings.animatedOut);
+                    id.removeClass(settings.modalTarget+'-off');
+                    id.addClass(settings.modalTarget+'-on');
+                } 
+
+                 if (id.hasClass(settings.modalTarget+'-on')) {
+                    id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
+                    id.addClass(settings.animatedIn);  
+                    id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(event){
+                        afterOpen(event);
+                    });
+                };
+            });
+        }
+
+        me.closeModal = function(){
+            $('body, html').css({'overflow':'initial'});
+            
+            if (id.hasClass(settings.modalTarget+'-on')) {
+                id.removeClass(settings.modalTarget+'-on');
+                id.addClass(settings.modalTarget+'-off');
+            }; 
+
+            if (id.hasClass(settings.modalTarget+'-off')) {
+                id.removeClass(settings.animatedIn);
+                id.addClass(settings.animatedOut);
+                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(event){
+                    afterClose(event);
+                });
+            };
+        }
         
         var closeBt = $('.close-'+settings.modalTarget);
 
@@ -62,61 +101,38 @@
             '-ms-animation-duration':settings.animationDuration,
             'animation-duration':settings.animationDuration
         };
+
         //Apply stles
         id.css(initStyles);
 
         modal.click(function(event) {       
             event.preventDefault();
-            $('body, html').css({'overflow':'hidden'});
-
-            settings.beforeOpen(event);
-
-            if (id.hasClass(settings.modalTarget+'-off')) {
-                id.removeClass(settings.animatedOut);
-                id.removeClass(settings.modalTarget+'-off');
-                id.addClass(settings.modalTarget+'-on');
-            } 
-
-             if (id.hasClass(settings.modalTarget+'-on')) {
-                id.css({'opacity':settings.opacityIn,'z-index':settings.zIndexIn});
-                id.addClass(settings.animatedIn);  
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(event){
-                    afterOpen(event);
-                });
-            };  
+            me.openModal();
         });
 
-
-
-        closeBt.click(function(event) {
+        // update so dynamically created close buttons have click handlers
+        $('body').on('click', '.close-'+settings.modalTarget, function(event){
             event.preventDefault();
-            $('body, html').css({'overflow':'initial'});
 
             settings.beforeClose(event); //beforeClose
 
-            if (id.hasClass(settings.modalTarget+'-on')) {
-                id.removeClass(settings.modalTarget+'-on');
-                id.addClass(settings.modalTarget+'-off');
-            } 
-
-            if (id.hasClass(settings.modalTarget+'-off')) {
-                id.removeClass(settings.animatedIn);
-                id.addClass(settings.animatedOut);
-                id.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(event){
-                    afterClose(event);
-                });
-            };
-
+            me.closeModal();
         });
 
-        function afterClose (event) {       
-            id.css({'z-index':settings.zIndexOut});
-            settings.afterClose(event); //afterClose
+        function afterClose (event) {
+            // make sure it's really the modal that is triggering the close event
+            if (event.target === event.currentTarget) {
+                id.css({'z-index':settings.zIndexOut});
+                settings.afterClose(event); //afterClose
+            }
         }
 
         function afterOpen (event) {       
             settings.afterOpen(event); //afterOpen
         }
+
+        // it is customary to return "this", but I assigned "this" to "me"
+        return me;
 
     }; // End animatedModal.js
 
