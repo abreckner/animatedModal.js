@@ -39,7 +39,7 @@
  
         }, options);
 
-        me.openModal = function(){
+        me.openModal = function(event){
             settings.beforeOpen(event, function(){
                 $('body, html').css({'overflow':'hidden'});
                 if (id.hasClass(settings.modalTarget+'-off')) {
@@ -107,7 +107,7 @@
 
         modal.click(function(event) {       
             event.preventDefault();
-            me.openModal();
+            me.openModal(event);
         });
 
         // update so dynamically created close buttons have click handlers
